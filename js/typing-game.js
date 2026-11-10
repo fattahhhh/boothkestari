@@ -47,6 +47,7 @@
 
     let rtdb = null;
     let cloudScores = [];
+    let isCloudConnected = false;
     let currentFirebaseRoomRef = null;
 
     try {
@@ -599,6 +600,7 @@
                     partnerName = cleanName(data.host?.name) || 'Host';
                     partnerClass = cleanClass(data.host?.class) || '';
                     partnerConnected = true;
+                    partnerType = 'remote';
 
                     if (data.text) {
                         currentText = data.text;
@@ -665,14 +667,24 @@
                 partnerName = cleanName(data.guest.name) || 'Guest';
                 partnerClass = cleanClass(data.guest.class) || '';
                 partnerConnected = true;
+                partnerType = 'remote';
                 updateLobbyUI();
                 toast(`${partnerName} (${partnerClass || '-'}) bergabung ke room!`, 'success');
             } else if (!data.guest && partnerConnected && !isGameRunning && !roundFinalized) {
                 partnerConnected = false;
+                partnerType = 'none';
                 partnerName = '';
                 partnerClass = '';
                 updateLobbyUI();
                 toast('Lawan keluar dari room.', 'info');
+            }
+        } else if (gameRole === 'guest') {
+            if (data.host && data.host.name) {
+                partnerName = cleanName(data.host.name) || 'Host';
+                partnerClass = cleanClass(data.host.class) || '';
+                partnerConnected = true;
+                partnerType = 'remote';
+                updateLobbyUI();
             }
         }
 
@@ -1746,7 +1758,7 @@
     }
 
     function readScores() {
-        if (cloudScores && cloudScores.length > 0) {
+        if (isCloudConnected) {
             return cloudScores.slice();
         }
 
@@ -1991,6 +2003,7 @@
     if (rtdb) {
         try {
             rtdb.ref('leaderboard').on('value', (snapshot) => {
+                isCloudConnected = true;
                 const data = snapshot.val();
                 if (data && typeof data === 'object') {
                     cloudScores = Object.keys(data).map((key) => ({
@@ -2003,6 +2016,11 @@
                     } catch (e) {}
                 } else {
                     cloudScores = [];
+                    // When database is reset/empty in cloud, clear localStorage on this device too!
+                    try {
+                        localStorage.removeItem(STORAGE_KEY);
+                        localStorage.removeItem(LEGACY_STORAGE_KEY);
+                    } catch (e) {}
                 }
                 renderLeaderboard(currentPeriodFilter, currentModeFilter);
             }, (err) => {
