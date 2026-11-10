@@ -25,7 +25,7 @@
     ];
 
     /* ----------------------------------------------------------------------
-       2. Constants
+       2. Constants & Firebase RTDB Setup
        ---------------------------------------------------------------------- */
     const GAME_DURATION = 30; // seconds
     const STORAGE_KEY = 'kestari_leaderboard_scores_v2';
@@ -33,6 +33,32 @@
     const MAX_SCORES = 20;
     const ROOM_PREFIX = 'kestari-room-';
     const ROOM_CODE_LENGTH = 4;
+
+    const FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBgpcxje2A3LL9K_wv84aZlfzs_Ez3y9n0",
+        authDomain: "booth-kestari.firebaseapp.com",
+        databaseURL: "https://booth-kestari-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "booth-kestari",
+        storageBucket: "booth-kestari.firebasestorage.app",
+        messagingSenderId: "40532923023",
+        appId: "1:40532923023:web:d23ebfce177e0b0a0c56fa",
+        measurementId: "G-R8F3ZVHJ1R"
+    };
+
+    let rtdb = null;
+    let cloudScores = [];
+    let currentFirebaseRoomRef = null;
+
+    try {
+        if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+            if (!firebase.apps || !firebase.apps.length) {
+                firebase.initializeApp(FIREBASE_CONFIG);
+            }
+            rtdb = firebase.database();
+        }
+    } catch (e) {
+        console.warn('Firebase RTDB init notice:', e);
+    }
 
     /* ----------------------------------------------------------------------
        3. DOM references
@@ -304,6 +330,21 @@
             joinTimeout = null;
         }
 
+        if (currentFirebaseRoomRef) {
+            try {
+                currentFirebaseRoomRef.off();
+                if (gameRole === 'host') {
+                    currentFirebaseRoomRef.remove();
+                } else if (gameRole === 'guest') {
+                    currentFirebaseRoomRef.child('guest').remove();
+                    currentFirebaseRoomRef.child('status').set('waiting');
+                }
+            } catch (error) {
+                // Ignore.
+            }
+            currentFirebaseRoomRef = null;
+        }
+
         if (roomChannel) {
             try {
                 if (notify && partnerConnected) {
@@ -322,6 +363,7 @@
         partnerConnected = false;
         partnerType = 'none';
         partnerName = '';
+        partnerClass = '';
         partnerFinal = null;
         if (gameRole !== 'solo') gameRole = 'solo';
     }
@@ -463,21 +505,9 @@
     }
 
     /* ----------------------------------------------------------------------
-       8. Co-op rooms (local, same browser)
+       8. 1 vs 1 Rooms (Firebase RTDB multi-device + BroadcastChannel fallback)
        ---------------------------------------------------------------------- */
     function createRoom() {
-        if (typeof BroadcastChannel === 'undefined') {
-            roomCode = generateRoomCode();
-            gameRole = 'host';
-            partnerType = 'none';
-            partnerConnected = false;
-            partnerName = '';
-            updateLobbyUI();
-            switchState('lobby');
-            toast('Browser ini belum mendukung room lokal. Gunakan Main dengan Bot.', 'error');
-            return;
-        }
-
         closeRoom(false);
         resetRoundState();
 
@@ -486,23 +516,46 @@
         partnerType = 'none';
         partnerConnected = false;
         partnerName = '';
+        partnerClass = '';
 
-        roomChannel = new BroadcastChannel(ROOM_PREFIX + roomCode);
-        roomChannel.addEventListener('message', handleHostMessage);
+        // 1. Firebase RTDB room (multi-device)
+        if (rtdb) {
+            try {
+                const roomRef = rtdb.ref('rooms/' + roomCode);
+                currentFirebaseRoomRef = roomRef;
+                currentText = getRandomText();
+                roomRef.set({
+                    status: 'waiting',
+                    text: currentText,
+                    host: {
+                        name: currentPlayerName,
+                        class: currentPlayerClass,
+                        ready: true
+                    },
+                    guest: null,
+                    createdAt: Date.now()
+                });
+                roomRef.onDisconnect().remove();
+                roomRef.on('value', handleFirebaseRoomSnapshot);
+            } catch (err) {
+                console.warn('Firebase createRoom warning:', err);
+            }
+        }
+
+        // 2. BroadcastChannel fallback (same browser)
+        if (typeof BroadcastChannel !== 'undefined') {
+            roomChannel = new BroadcastChannel(ROOM_PREFIX + roomCode);
+            roomChannel.addEventListener('message', handleHostMessage);
+        }
 
         updateLobbyUI();
         switchState('lobby');
-        toast(`Room ${roomCode} dibuat. Bagikan kodenya ke partner!`, 'success');
+        toast(`Room ${roomCode} dibuat. Bagikan kodenya ke lawan!`, 'success');
     }
 
     function joinRoom(code) {
         if (!/^[A-Z0-9]{4}$/.test(code)) {
             toast('Kode room harus 4 karakter.', 'error');
-            return;
-        }
-
-        if (typeof BroadcastChannel === 'undefined') {
-            toast('Browser ini belum mendukung room lokal. Gunakan Main dengan Bot.', 'error');
             return;
         }
 
@@ -514,10 +567,70 @@
         partnerType = 'remote';
         partnerConnected = false;
         partnerName = '';
+        partnerClass = '';
 
-        roomChannel = new BroadcastChannel(ROOM_PREFIX + roomCode);
-        roomChannel.addEventListener('message', handleGuestMessage);
-        roomChannel.postMessage({ type: 'join', name: currentPlayerName });
+        // 1. Firebase RTDB room
+        if (rtdb) {
+            try {
+                const roomRef = rtdb.ref('rooms/' + roomCode);
+                currentFirebaseRoomRef = roomRef;
+
+                roomRef.once('value').then((snap) => {
+                    const data = snap.val();
+                    if (!data || data.status === 'finished') {
+                        toast('Room tidak ditemukan atau sudah selesai.', 'error');
+                        closeRoom(false);
+                        switchState('nameInput');
+                        return;
+                    }
+
+                    if (data.guest && data.guest.name && data.guest.name !== currentPlayerName) {
+                        toast('Room sudah penuh (maksimal 2 pemain).', 'error');
+                        closeRoom(false);
+                        switchState('nameInput');
+                        return;
+                    }
+
+                    if (joinTimeout) {
+                        clearTimeout(joinTimeout);
+                        joinTimeout = null;
+                    }
+
+                    partnerName = cleanName(data.host?.name) || 'Host';
+                    partnerClass = cleanClass(data.host?.class) || '';
+                    partnerConnected = true;
+
+                    if (data.text) {
+                        currentText = data.text;
+                    }
+
+                    roomRef.child('guest').set({
+                        name: currentPlayerName,
+                        class: currentPlayerClass,
+                        ready: true
+                    });
+                    roomRef.child('guest').onDisconnect().remove();
+                    roomRef.update({ status: 'ready' });
+
+                    roomRef.on('value', handleFirebaseRoomSnapshot);
+
+                    updateLobbyUI();
+                    switchState('lobby');
+                    toast(`Terhubung dengan ${partnerName}!`, 'success');
+                }).catch((err) => {
+                    console.warn('Firebase joinRoom warning:', err);
+                });
+            } catch (err) {
+                console.warn('Firebase joinRoom error:', err);
+            }
+        }
+
+        // 2. BroadcastChannel fallback
+        if (typeof BroadcastChannel !== 'undefined') {
+            roomChannel = new BroadcastChannel(ROOM_PREFIX + roomCode);
+            roomChannel.addEventListener('message', handleGuestMessage);
+            roomChannel.postMessage({ type: 'join', name: currentPlayerName, class: currentPlayerClass });
+        }
 
         updateLobbyUI();
         switchState('lobby');
@@ -531,7 +644,64 @@
             window.setTimeout(() => {
                 if (roomCodeInput) roomCodeInput.focus({ preventScroll: true });
             }, 80);
-        }, 2500);
+        }, 3500);
+    }
+
+    function handleFirebaseRoomSnapshot(snapshot) {
+        const data = snapshot.val();
+        if (!data) {
+            if (partnerConnected && !roundFinalized) {
+                toast('Room ditutup oleh lawan.', 'info');
+                closeRoom(false);
+                resetRoundState();
+                switchState('modeSelect');
+            }
+            return;
+        }
+
+        // Host observes guest connecting or leaving
+        if (gameRole === 'host') {
+            if (data.guest && data.guest.name && !partnerConnected) {
+                partnerName = cleanName(data.guest.name) || 'Guest';
+                partnerClass = cleanClass(data.guest.class) || '';
+                partnerConnected = true;
+                updateLobbyUI();
+                toast(`${partnerName} (${partnerClass || '-'}) bergabung ke room!`, 'success');
+            } else if (!data.guest && partnerConnected && !isGameRunning && !roundFinalized) {
+                partnerConnected = false;
+                partnerName = '';
+                partnerClass = '';
+                updateLobbyUI();
+                toast('Lawan keluar dari room.', 'info');
+            }
+        }
+
+        // Countdown start triggered by Host
+        if (data.status === 'starting' && !isGameRunning) {
+            if (states.countdown && !states.countdown.classList.contains('active')) {
+                if (data.text) currentText = data.text;
+                startCoopRound(currentText, gameRole);
+            }
+        }
+
+        // Live progress update during 1 vs 1 duel
+        if (isGameRunning && data.progress) {
+            const partnerProg = gameRole === 'host' ? data.progress.guest : data.progress.host;
+            if (partnerProg) {
+                applyPartnerProgress(partnerProg);
+            }
+        }
+
+        // Partner finished match
+        if (data.finish) {
+            const remoteFinal = gameRole === 'host' ? data.finish.guest : data.finish.host;
+            if (remoteFinal && !partnerFinal) {
+                partnerFinal = normalizeRemoteStats(remoteFinal);
+                if (ownFinal && !roundFinalized) {
+                    finalizeRound();
+                }
+            }
+        }
     }
 
     function handleHostMessage(event) {
@@ -754,16 +924,28 @@
     if (btnStartCoop) {
         btnStartCoop.addEventListener('click', () => {
             if (gameRole !== 'host' || !partnerConnected || partnerType !== 'remote') return;
-            const text = getRandomText();
-            try {
-                roomChannel.postMessage({
-                    type: 'start',
-                    text,
-                    hostName: currentPlayerName,
-                    duration: GAME_DURATION
-                });
-            } catch (error) {
-                // Ignore.
+            const text = currentText || getRandomText();
+            if (currentFirebaseRoomRef) {
+                try {
+                    currentFirebaseRoomRef.update({
+                        status: 'starting',
+                        text
+                    });
+                } catch (error) {
+                    // Ignore.
+                }
+            }
+            if (roomChannel) {
+                try {
+                    roomChannel.postMessage({
+                        type: 'start',
+                        text,
+                        hostName: currentPlayerName,
+                        duration: GAME_DURATION
+                    });
+                } catch (error) {
+                    // Ignore.
+                }
             }
             startCoopRound(text, 'host');
         });
@@ -1048,22 +1230,37 @@
     }
 
     function broadcastProgress(stats) {
-        if (partnerType !== 'remote' || !roomChannel) return;
+        if (partnerType !== 'remote') return;
         const now = Date.now();
-        if (now - lastBroadcastAt < 80) return;
+        if (now - lastBroadcastAt < 100) return;
         lastBroadcastAt = now;
 
-        try {
-            roomChannel.postMessage({
-                type: 'progress',
-                pos: stats.typedLength,
-                wpm: stats.wpm,
-                accuracy: stats.accuracy,
-                correct: stats.correct,
-                wrong: stats.wrong
-            });
-        } catch (error) {
-            // Ignore closed channel.
+        const payload = {
+            pos: stats.typedLength,
+            wpm: stats.wpm,
+            accuracy: stats.accuracy,
+            correct: stats.correct,
+            wrong: stats.wrong
+        };
+
+        if (currentFirebaseRoomRef) {
+            try {
+                const roleKey = gameRole === 'host' ? 'host' : 'guest';
+                currentFirebaseRoomRef.child('progress/' + roleKey).set(payload);
+            } catch (error) {
+                // Ignore.
+            }
+        }
+
+        if (roomChannel) {
+            try {
+                roomChannel.postMessage({
+                    type: 'progress',
+                    ...payload
+                });
+            } catch (error) {
+                // Ignore closed channel.
+            }
         }
     }
 
@@ -1190,11 +1387,21 @@
             return;
         }
 
-        if (partnerType === 'remote' && roomChannel) {
-            try {
-                roomChannel.postMessage({ type: 'finish', stats: ownFinal });
-            } catch (error) {
-                // Ignore.
+        if (partnerType === 'remote') {
+            if (currentFirebaseRoomRef) {
+                try {
+                    const roleKey = gameRole === 'host' ? 'host' : 'guest';
+                    currentFirebaseRoomRef.child('finish/' + roleKey).set(ownFinal);
+                } catch (error) {
+                    // Ignore.
+                }
+            }
+            if (roomChannel) {
+                try {
+                    roomChannel.postMessage({ type: 'finish', stats: ownFinal });
+                } catch (error) {
+                    // Ignore.
+                }
             }
         }
 
@@ -1539,6 +1746,10 @@
     }
 
     function readScores() {
+        if (cloudScores && cloudScores.length > 0) {
+            return cloudScores.slice();
+        }
+
         try {
             let raw = localStorage.getItem(STORAGE_KEY);
             let scores = raw ? JSON.parse(raw) : null;
@@ -1565,14 +1776,22 @@
     }
 
     function saveScore(entry) {
-        const scores = readScores();
-        scores.push(entry);
-        scores.sort(sortScores);
+        const localList = readScores().filter((s) => s.id !== entry.id);
+        localList.push(entry);
+        localList.sort(sortScores);
 
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(scores.slice(0, 100)));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(localList.slice(0, 100)));
         } catch (error) {
-            toast('Skor gagal disimpan di perangkat ini.', 'error');
+            // Ignore storage warning.
+        }
+
+        if (rtdb) {
+            try {
+                rtdb.ref('leaderboard').push(entry);
+            } catch (err) {
+                console.warn('Firebase push score warning:', err);
+            }
         }
     }
 
@@ -1730,6 +1949,16 @@
         } catch (e) {
             // ignore
         }
+        cloudScores = [];
+
+        if (rtdb) {
+            try {
+                rtdb.ref('leaderboard').remove();
+            } catch (err) {
+                console.warn('Firebase clear leaderboard warning:', err);
+            }
+        }
+
         renderLeaderboard(currentPeriodFilter, currentModeFilter);
         toast('Leaderboard berhasil dibersihkan! (0 skor)', 'success');
     }
@@ -1751,11 +1980,37 @@
 
             if (clickCount >= 5) {
                 clickCount = 0;
-                if (window.confirm('⚠️ Reset Leaderboard?\n\nApakah panitia yakin ingin menghapus semua skor leaderboard di perangkat ini?')) {
+                if (window.confirm('⚠️ Reset Leaderboard?\n\nApakah panitia yakin ingin menghapus semua skor leaderboard di perangkat dan cloud?')) {
                     clearLeaderboardScores();
                 }
             }
         });
+    }
+
+    // Realtime Cloud Leaderboard Listener (Sync across physical devices!)
+    if (rtdb) {
+        try {
+            rtdb.ref('leaderboard').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && typeof data === 'object') {
+                    cloudScores = Object.keys(data).map((key) => ({
+                        id: key,
+                        ...data[key]
+                    })).map(normalizeScoreEntry).filter(Boolean);
+                    cloudScores.sort(sortScores);
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudScores.slice(0, 100)));
+                    } catch (e) {}
+                } else {
+                    cloudScores = [];
+                }
+                renderLeaderboard(currentPeriodFilter, currentModeFilter);
+            }, (err) => {
+                console.warn('Firebase leaderboard sync listener:', err.message);
+            });
+        } catch (err) {
+            console.warn('Firebase listener error:', err);
+        }
     }
 
     renderLeaderboard('all', 'solo');
