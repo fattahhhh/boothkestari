@@ -11,7 +11,7 @@
        ---------------------------------------------------------------------- */
     const CHALLENGE_TEXTS = [
         'Transformasi digital telah mengubah cara organisasi mengelola administrasi. Dokumen yang sebelumnya disimpan dalam bentuk fisik kini dapat dikelola melalui penyimpanan berbasis cloud. Penggunaan Google Drive, Google Docs, dan Google Sheets membantu meningkatkan efisiensi kolaborasi antaranggota. Namun, kemudahan teknologi juga harus diimbangi dengan pengelolaan akses, penamaan file, struktur folder, serta pencadangan data secara berkala. Digitalisasi bukan sekadar memindahkan dokumen ke komputer, melainkan membangun sistem kerja yang lebih efektif, aman, dan berkelanjutan.',
-        'Pada hari Senin, 9 November 2026, HIMATIK menyelenggarakan rapat koordinasi untuk membahas persiapan kegiatan Booth Kestari EXPECTIK HIMATIK. Rapat dimulai pukul 15.30 WIB dan dihadiri oleh perwakilan setiap biro serta departemen. Beberapa agenda yang dibahas meliputi pembagian tugas, kebutuhan perlengkapan, penyusunan anggaran, publikasi kegiatan, dan evaluasi teknis. Seluruh hasil pembahasan dicatat dalam notulensi agar setiap keputusan dapat ditindaklanjuti secara tepat oleh pihak yang bertanggung jawab.',
+        'Pada hari Senin, 9 November 2026, HIMATIK menyelenggarakan rapat koordinasi untuk membahas persiapan kegiatan Booth Kestari HIMATIK. Rapat dimulai pukul 15.30 WIB dan dihadiri oleh perwakilan setiap biro serta departemen. Beberapa agenda yang dibahas meliputi pembagian tugas, kebutuhan perlengkapan, penyusunan anggaran, publikasi kegiatan, dan evaluasi teknis. Seluruh hasil pembahasan dicatat dalam notulensi agar setiap keputusan dapat ditindaklanjuti secara tepat oleh pihak yang bertanggung jawab.',
         'Dalam pelaksanaan program kerja, koordinasi antarbagian sering kali melibatkan banyak informasi yang harus disampaikan secara tepat. Perubahan jadwal, pergantian lokasi, pembaruan susunan acara, hingga penyesuaian anggaran harus dikomunikasikan kepada pihak terkait tanpa penundaan. Tanpa pencatatan yang tertib, informasi penting berisiko terlewat dan menimbulkan kesalahpahaman. Oleh sebab itu, setiap anggota organisasi perlu membangun kebiasaan bekerja secara terstruktur, transparan, dan bertanggung jawab.',
         'Tertib administrasi menghasilkan keterbukaan, akuntabilitas, dan kesinambungan kerja kepengurusan. Surat resmi merupakan instrumen komunikasi diplomatis utama antara himpunan dengan pihak fakultas, mitra kerja sama, maupun organisasi eksternal. Setiap penomoran surat keluar, pencatatan surat masuk, serta pembubuhan tanda tangan dan stempel resmi harus mengacu pada pedoman tata persuratan yang baku agar kredibilitas organisasi tetap terjaga.',
         'Mencatat setiap keputusan rapat dengan cermat adalah kunci sukses tindak lanjut program kerja. Notulensi yang tersusun rapi tidak hanya merangkum dinamika diskusi, tetapi juga memuat rincian pembagian tugas, batas waktu pengerjaan, dan indikator keberhasilan setiap divisi. Ketika evaluasi akhir dilaksanakan, arsip notulensi menjadi rujukan valid untuk menilai performa program kerja secara objektif dan merumuskan perbaikan di masa depan.',
@@ -49,6 +49,7 @@
     let cloudScores = [];
     let isCloudConnected = false;
     let currentFirebaseRoomRef = null;
+    let currentRoundId = 0;
 
     try {
         if (typeof firebase !== 'undefined' && firebase.initializeApp) {
@@ -366,6 +367,7 @@
         partnerName = '';
         partnerClass = '';
         partnerFinal = null;
+        currentRoundId = 0;
         if (gameRole !== 'solo') gameRole = 'solo';
     }
 
@@ -663,13 +665,16 @@
 
         // Host observes guest connecting or leaving
         if (gameRole === 'host') {
-            if (data.guest && data.guest.name && !partnerConnected) {
+            if (data.guest && data.guest.name) {
+                const wasConnected = partnerConnected;
                 partnerName = cleanName(data.guest.name) || 'Guest';
                 partnerClass = cleanClass(data.guest.class) || '';
                 partnerConnected = true;
                 partnerType = 'remote';
                 updateLobbyUI();
-                toast(`${partnerName} (${partnerClass || '-'}) bergabung ke room!`, 'success');
+                if (!wasConnected) {
+                    toast(`${partnerName} (${partnerClass || '-'}) bergabung ke room!`, 'success');
+                }
             } else if (!data.guest && partnerConnected && !isGameRunning && !roundFinalized) {
                 partnerConnected = false;
                 partnerType = 'none';
@@ -689,11 +694,18 @@
         }
 
         // Countdown start triggered by Host
-        if (data.status === 'starting' && !isGameRunning) {
-            if (states.countdown && !states.countdown.classList.contains('active')) {
-                if (data.text) currentText = data.text;
-                startCoopRound(currentText, gameRole);
-            }
+        if (data.status === 'starting' && data.roundId && data.roundId !== currentRoundId) {
+            currentRoundId = data.roundId;
+            if (data.text) currentText = data.text;
+            startCoopRound(currentText, gameRole);
+        }
+
+        // Return to lobby for next round when Host clicks "Main Lagi" (guest only)
+        if (gameRole === 'guest' && data.status === 'ready' && !isGameRunning && states.results && states.results.classList.contains('active')) {
+            resetRoundState();
+            updateLobbyUI();
+            switchState('lobby');
+            toast('Kembali ke lobby untuk ronde berikutnya!', 'info');
         }
 
         // Live progress update during 1 vs 1 duel
@@ -936,12 +948,17 @@
     if (btnStartCoop) {
         btnStartCoop.addEventListener('click', () => {
             if (gameRole !== 'host' || !partnerConnected || partnerType !== 'remote') return;
-            const text = currentText || getRandomText();
+            const text = getRandomText();
+            const roundId = Date.now();
+            currentRoundId = roundId;
             if (currentFirebaseRoomRef) {
                 try {
                     currentFirebaseRoomRef.update({
                         status: 'starting',
-                        text
+                        roundId,
+                        text,
+                        progress: null,
+                        finish: null
                     });
                 } catch (error) {
                     // Ignore.
@@ -951,6 +968,7 @@
                 try {
                     roomChannel.postMessage({
                         type: 'start',
+                        roundId,
                         text,
                         hostName: currentPlayerName,
                         duration: GAME_DURATION
@@ -1437,6 +1455,14 @@
             pendingFinalizeTimer = null;
         }
 
+        if (currentFirebaseRoomRef) {
+            try {
+                currentFirebaseRoomRef.update({ status: 'finished' });
+            } catch (error) {
+                // Ignore.
+            }
+        }
+
         const own = ownFinal || getFinalStats();
         const isVersus = currentMode === 'versus' || currentMode === 'coop';
         const partner = isVersus ? getPartnerStats(own.duration) : null;
@@ -1655,37 +1681,35 @@
        ---------------------------------------------------------------------- */
     if (btnPlayAgain) {
         btnPlayAgain.addEventListener('click', () => {
-            if (gameRole === 'guest') {
-                closeRoom(true);
-                resetRoundState();
-                switchState('modeSelect');
-                return;
-            }
-
             if (currentMode === 'solo') {
                 startSoloRound();
                 return;
             }
 
             if (partnerType === 'bot') {
-                startVersusRound(getRandomText(), 'bot');
+                startCoopRound(getRandomText(), 'bot');
                 return;
             }
 
-            if (gameRole === 'host' && partnerConnected) {
-                const text = getRandomText();
-                try {
-                    roomChannel.postMessage({
-                        type: 'start',
-                        text,
-                        hostName: currentPlayerName,
-                        hostClass: currentPlayerClass,
-                        duration: GAME_DURATION
-                    });
-                } catch (error) {
-                    // Ignore.
+            // In 1 vs 1 duel: return back to Lobby so Host can start next duel when ready
+            if (partnerConnected) {
+                resetRoundState();
+                if (currentFirebaseRoomRef) {
+                    try {
+                        currentFirebaseRoomRef.update({
+                            status: 'ready',
+                            progress: null,
+                            finish: null
+                        });
+                    } catch (error) {
+                        // Ignore.
+                    }
                 }
-                startVersusRound(text, 'host');
+                updateLobbyUI();
+                switchState('lobby');
+                if (gameRole === 'guest') {
+                    toast('Kembali ke lobby. Menunggu Host memulai duel...', 'info');
+                }
                 return;
             }
 
