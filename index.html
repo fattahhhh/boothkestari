@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>Kestari — Biro Kesekretariatan HIMATIK</title>
+    <meta name="description" content="Kenalan dengan Biro Kesekretariatan HIMATIK dan uji kecepatan mengetikmu di Kestari Typing Challenge!">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="assets/images/favicon.png" type="image/png">
+</head>
+<body>
+    <!-- ============ NAVBAR ============ -->
+    <header id="navbar">
+        <nav class="nav-container" aria-label="Navigasi utama">
+            <a href="#hero" class="nav-brand">
+                <img src="assets/images/logo-kestari.webp" alt="" class="nav-logo" width="28" height="28">
+                <span>Kestari</span>
+            </a>
+
+            <ul class="nav-links" id="nav-links">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#what-we-do" class="nav-link">Tugas</a></li>
+                <li><a href="#why-matters" class="nav-link">Kenapa Penting</a></li>
+                <li><a href="#game" class="nav-link nav-link-game">Game</a></li>
+                <li>
+                    <a href="#leaderboard" class="nav-link nav-link-icon" aria-label="Leaderboard">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+                            <path d="M4 22h16"/>
+                            <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+                            <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+                            <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Buka menu" aria-expanded="false" aria-controls="nav-links">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- ============ HERO ============ -->
+        <section id="hero">
+            <div class="hero-bg" aria-hidden="true"></div>
+
+            <div class="container hero-content">
+                <img src="assets/images/logo-himatik.webp" alt="Logo HIMATIK" class="hero-logo" width="80" height="80">
+                <p class="hero-subtitle">Biro Kesekretariatan HIMATIK</p>
+
+                <!-- Kestari team photo marquee -->
+                <div class="hero-marquee" aria-hidden="true">
+                    <div class="marquee-track">
+                        <div class="marquee-group">
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="eager" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="eager" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="eager" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="eager" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="eager" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                        </div>
+                        <div class="marquee-group">
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/naailah.webp" alt="Naailah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Naailah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/imam.webp" alt="Imam" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Imam</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/fattah.webp" alt="Fattah" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Fattah</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dinda.webp" alt="Dinda" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dinda</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                            <figure class="marquee-card">
+                                <img src="assets/images/kestari/dandy.webp" alt="Dandy" width="675" height="1200" loading="lazy" decoding="async">
+                                <figcaption><span>Dandy</span><small>Biro Kestari</small></figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="hero-title">
+                    The Power Behind an<br>
+                    <span class="hero-title-accent">Organized Organization.</span>
+                </h1>
+
+                <p class="hero-desc">
+                    Kenalan dengan Kestari, biro yang menjaga administrasi
+                    dan dokumentasi HIMATIK tetap tertata.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="#about" class="btn btn-outline btn-lg">
+                        Kenalan dengan Kestari
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+                    </a>
+                    <a href="#game" class="btn btn-primary btn-lg btn-glow">🎮 Main Typing Challenge</a>
+                </div>
+
+                <a href="#about" class="scroll-indicator" aria-label="Scroll ke bagian About">
+                    <span>Scroll</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                </a>
+            </div>
+        </section>
+
+        <!-- ============ ABOUT KESTARI ============ -->
+        <section id="about" class="section section-soft">
+            <div class="container">
+                <div class="section-head reveal">
+                    <span class="section-eyebrow">Tentang Kami</span>
+                    <h2 class="section-title">Kestari Itu Apa, Sih?</h2>
+                </div>
+
+                <div class="about-card reveal">
+                    <img src="assets/images/logo-kestari.webp" alt="Logo Kestari" class="about-logo" width="48" height="48">
+                    <p class="about-desc">
+                        Biro Kesekretariatan merupakan bagian organisasi yang mendukung
+                        kelancaran tata kelola administrasi. Kestari membantu memastikan
+                        informasi, dokumen, dan catatan kegiatan dikelola secara sistematis
+                        sehingga kebutuhan administratif organisasi dapat berjalan dengan baik.
+                    </p>
+
+                    <div class="about-stats">
+                        <div class="stat-card">
+                            <span class="stat-icon" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                            </span>
+                            <span class="stat-label">Surat<br><strong>Dikelola</strong></span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                            </span>
+                            <span class="stat-label">Notulensi<br><strong>Tercatat</strong></span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-icon" aria-hidden="true">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 12 9 5 9-5"/><path d="m3 17 9 5 9-5"/></svg>
+                            </span>
+                            <span class="stat-label">Dokumen<br><strong>Terarsip</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ WHAT WE DO ============ -->
+        <section id="what-we-do" class="section">
+            <div class="container">
+                <div class="section-head reveal">
+                    <span class="section-eyebrow">Peran Kami</span>
+                    <h2 class="section-title">Apa Saja yang Dikerjakan Kestari?</h2>
+                </div>
+
+                <div class="task-grid">
+                    <article class="task-card reveal">
+                        <span class="task-icon" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                        </span>
+                        <h3>Surat-Menyurat</h3>
+                        <p>Membantu proses administrasi surat, seperti penyusunan, pencatatan, dan pengelolaan surat organisasi.</p>
+                    </article>
+
+                    <article class="task-card reveal">
+                        <span class="task-icon" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
+                        </span>
+                        <h3>Pengelolaan Dokumen</h3>
+                        <p>Menata dan menyimpan dokumen organisasi agar mudah ditemukan kembali saat dibutuhkan.</p>
+                    </article>
+
+                    <article class="task-card reveal">
+                        <span class="task-icon" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                        </span>
+                        <h3>Notulensi &amp; Rapat</h3>
+                        <p>Mencatat pembahasan, keputusan, dan tindak lanjut dalam rapat atau forum organisasi.</p>
+                    </article>
+
+                    <article class="task-card reveal">
+                        <span class="task-icon" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v5h5"/><path d="M8 13h8M8 17h8"/></svg>
+                        </span>
+                        <h3>Administrasi Kegiatan</h3>
+                        <p>Mendukung kebutuhan administratif program kerja, seperti proposal, TOR/KAK, laporan, dan dokumen pendukung lainnya.</p>
+                    </article>
+
+                    <article class="task-card reveal">
+                        <span class="task-icon" aria-hidden="true">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+                        </span>
+                        <h3>Arsip &amp; Dokumentasi</h3>
+                        <p>Menjaga rekam jejak kegiatan serta dokumen organisasi agar tertib dan berkelanjutan.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ WHY KESTARI MATTERS ============ -->
+        <section id="why-matters" class="section section-soft">
+            <div class="container">
+                <div class="section-head reveal">
+                    <span class="section-eyebrow">Kenapa Penting</span>
+                    <h2 class="section-title">Kenapa Kestari Penting?</h2>
+                </div>
+
+                <div class="why-card reveal">
+                    <div class="why-item">
+                        <span class="why-number">01</span>
+                        <div class="why-content">
+                            <h3>Terorganisasi</h3>
+                            <p>Dokumen dan informasi lebih tertata, mudah ditemukan saat dibutuhkan.</p>
+                        </div>
+                    </div>
+                    <div class="why-divider"></div>
+                    <div class="why-item">
+                        <span class="why-number">02</span>
+                        <div class="why-content">
+                            <h3>Terdokumentasi</h3>
+                            <p>Keputusan serta perjalanan organisasi memiliki catatan yang jelas.</p>
+                        </div>
+                    </div>
+                    <div class="why-divider"></div>
+                    <div class="why-item">
+                        <span class="why-number">03</span>
+                        <div class="why-content">
+                            <h3>Akuntabel</h3>
+                            <p>Proses administrasi membantu organisasi bekerja secara transparan dan dapat dipertanggungjawabkan.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TYPING GAME ============ -->
+        <section id="game" class="section">
+            <div class="container">
+                <div class="section-head">
+                    <span class="section-eyebrow">Mini Games</span>
+                    <h2 class="section-title">⌨️ Kestari Typing Challenge</h2>
+                    <p class="section-subtitle">Seberapa cepat dan akurat kamu mengetik? Uji kemampuanmu dalam tantangan singkat ini!</p>
+                </div>
+
+                <!-- Game State: Mode Selection -->
+                <div id="game-mode-select" class="game-state active">
+                    <div class="mode-cards">
+                        <button class="mode-card" id="btn-solo" type="button">
+                            <span class="mode-icon" aria-hidden="true">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+                            </span>
+                            <span class="mode-kicker">1 Pemain</span>
+                            <h3>SOLO</h3>
+                            <p>Main sendiri, uji kecepatan dan ketelitianmu.</p>
+                            <span class="mode-cta">Mulai Solo <span aria-hidden="true">→</span></span>
+                        </button>
+
+                        <button class="mode-card" id="btn-coop" type="button">
+                            <span class="mode-icon" aria-hidden="true">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 17.5 3 3 4-4-3-3"/><path d="m9.5 6.5-3-3-4 4 3 3"/><path d="m6 18 12-12"/><path d="m18 18-4-4"/><path d="m6 6 4 4"/></svg>
+                            </span>
+                            <span class="mode-kicker">2 Pemain</span>
+                            <h3>1 VS 1</h3>
+                            <p>Adu cepat &amp; tepat! Tanding lawan teman atau Bot Kestari.</p>
+                            <span class="mode-cta">Mulai 1 vs 1 <span aria-hidden="true">→</span></span>
+                        </button>
+                    </div>
+
+                    <a href="#leaderboard" class="leaderboard-shortcut">
+                        <span class="leaderboard-shortcut-icon" aria-hidden="true">🏆</span>
+                        Lihat Leaderboard
+                        <span class="leaderboard-shortcut-arrow" aria-hidden="true">→</span>
+                    </a>
+                </div>
+
+                <!-- Game State: Name Input -->
+                <div id="game-name-input" class="game-state">
+                    <div class="name-input-card">
+                        <h3 id="name-title">Siapa nama dan kelasmu?</h3>
+                        <p class="name-subtitle" id="name-subtitle">Nama dan kelas ini akan tercatat di leaderboard.</p>
+
+                        <div class="input-group">
+                            <label for="player-name" class="sr-only">Nama panggilan</label>
+                            <input type="text" id="player-name" maxlength="20" placeholder="Nama panggilan (wajib)..." autocomplete="off" spellcheck="false" required>
+                            <span class="input-counter"><span id="name-counter">0</span>/20</span>
+                        </div>
+
+                        <div class="input-group" style="margin-top: 12px;">
+                            <label for="player-class" class="sr-only">Kelas / Program Studi</label>
+                            <input type="text" id="player-class" maxlength="30" placeholder="Kelas / Prodi (contoh: TI-1A / Teknik Informatika)..." autocomplete="off" spellcheck="false" required>
+                            <span class="input-counter"><span id="class-counter">0</span>/30</span>
+                        </div>
+
+                        <div class="room-join" id="room-join-group" hidden>
+                            <label for="room-code-input">Punya kode room? <span>(opsional)</span></label>
+                            <div class="input-group input-group-compact">
+                                <input type="text" id="room-code-input" maxlength="4" placeholder="Contoh: A3X7" autocomplete="off" spellcheck="false" style="text-transform:uppercase;">
+                                <span class="input-counter">Room</span>
+                            </div>
+                            <p class="field-hint">Kosongkan untuk membuat room baru.</p>
+                        </div>
+
+                        <div class="name-buttons">
+                            <button class="btn btn-ghost" id="btn-back-mode" type="button">← Kembali</button>
+                            <button class="btn btn-primary" id="btn-start-game" type="button" disabled>Lanjut <span aria-hidden="true">→</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game State: 1 vs 1 Lobby -->
+                <div id="game-lobby" class="game-state">
+                    <div class="lobby-card">
+                        <div class="lobby-head">
+                            <span class="lobby-icon" aria-hidden="true">⚔️</span>
+                            <h3>Mode 1 vs 1 (Mabar)</h3>
+                            <p>Bagikan kode room ke lawan di laptop sebelah, atau tanding lawan Bot Kestari.</p>
+                        </div>
+
+                        <div class="room-code-panel">
+                            <span class="room-code-label">Room Code</span>
+                            <strong class="room-code-value" id="lobby-room-code">----</strong>
+                            <button class="btn btn-outline btn-sm" id="btn-copy-code" type="button">Salin</button>
+                        </div>
+
+                        <ul class="lobby-players">
+                            <li class="lobby-player is-you">
+                                <span class="player-avatar" id="lobby-you-avatar">A</span>
+                                <span class="player-meta">
+                                    <strong id="lobby-you-name">Kamu</strong>
+                                    <small id="lobby-you-role">Host · Siap</small>
+                                </span>
+                                <span class="player-status ready">Siap</span>
+                            </li>
+                            <li class="lobby-player is-partner is-waiting" id="lobby-partner-row">
+                                <span class="player-avatar" id="lobby-partner-avatar">?</span>
+                                <span class="player-meta">
+                                    <strong id="lobby-partner-name">Menunggu lawan...</strong>
+                                    <small id="lobby-partner-role">Lawan</small>
+                                </span>
+                                <span class="player-status waiting" id="lobby-partner-status">Menunggu</span>
+                            </li>
+                        </ul>
+
+                        <p class="lobby-hint" id="lobby-hint">
+                            Buka website ini di laptop sebelah, lalu masukkan kode room untuk bertanding.
+                        </p>
+
+                        <div class="lobby-buttons">
+                            <button class="btn btn-ghost" id="btn-lobby-back" type="button">← Batal</button>
+                            <button class="btn btn-outline" id="btn-play-bot" type="button">🤖 Tanding Lawan Bot</button>
+                            <button class="btn btn-primary" id="btn-start-coop" type="button" disabled>Mulai Duel ⚔️</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game State: Countdown -->
+                <div id="game-countdown" class="game-state">
+                    <div class="countdown-container">
+                        <span class="countdown-label" id="countdown-label">Bersiap...</span>
+                        <div class="countdown-number" id="countdown-number">3</div>
+                        <p class="countdown-text">Fokus, tantangan dimulai sebentar lagi.</p>
+                    </div>
+                </div>
+
+                <!-- Game State: Playing -->
+                <div id="game-playing" class="game-state">
+                    <div class="game-container">
+                        <div class="game-header">
+                            <div class="game-timer" id="game-timer" role="timer" aria-label="Sisa waktu">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/></svg>
+                                <span class="timer-value" id="timer-value">30</span>
+                                <span class="timer-unit">s</span>
+                            </div>
+                            <div class="game-mode-label" id="game-mode-label">SOLO</div>
+                            <div class="game-room-label" id="game-room-label" hidden>Room <strong id="game-room-code">----</strong></div>
+                            <div class="game-live-stats">
+                                <span><small>WPM</small> <strong id="live-wpm">0</strong></span>
+                                <span class="stats-divider" aria-hidden="true"></span>
+                                <span><small>Akurasi</small> <strong><span id="live-accuracy">100</span>%</strong></span>
+                            </div>
+                        </div>
+
+                        <span class="sr-only" id="game-announcer" aria-live="polite" aria-atomic="true"></span>
+
+                        <div class="text-display-wrapper" id="text-display-wrapper">
+                            <div class="text-display" id="text-display" aria-label="Teks yang harus diketik"></div>
+                            <textarea id="typing-input"
+                                autocomplete="off" autocorrect="off"
+                                autocapitalize="off" spellcheck="false"
+                                aria-label="Area mengetik"></textarea>
+                            <div class="text-display-overlay">Klik di sini untuk mulai mengetik</div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="progress-bar" id="progress-bar" role="progressbar" aria-label="Progress mengetik" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
+                        </div>
+                        <div class="progress-info">
+                            <span id="progress-label">Progress</span>
+                            <span id="chars-typed">0 karakter diketik</span>
+                            <span id="progress-text">0%</span>
+                        </div>
+
+                        <div class="coop-stats versus-live-bar" id="coop-stats" hidden>
+                            <div class="coop-player vs-live-player you">
+                                <span class="coop-dot vs-live-dot" aria-hidden="true"></span>
+                                <div class="vs-live-meta">
+                                    <span class="coop-name vs-live-name" id="coop-you-name">Kamu</span>
+                                    <small class="vs-live-class" id="coop-you-class">-</small>
+                                </div>
+                                <div class="vs-live-metrics">
+                                    <strong id="coop-you-wpm">0</strong> <span class="vs-unit">WPM</span>
+                                    <span class="vs-prog-badge" id="coop-you-prog">0%</span>
+                                </div>
+                            </div>
+                            <div class="vs-live-mid" id="vs-lead-badge">⚔️ VS</div>
+                            <div class="coop-player vs-live-player partner">
+                                <span class="coop-dot vs-live-dot" aria-hidden="true"></span>
+                                <div class="vs-live-meta">
+                                    <span class="coop-name vs-live-name" id="coop-partner-name">Bot Kestari</span>
+                                    <small class="vs-live-class" id="coop-partner-class">Bot AI</small>
+                                </div>
+                                <div class="vs-live-metrics">
+                                    <strong id="coop-partner-wpm">0</strong> <span class="vs-unit">WPM</span>
+                                    <span class="vs-prog-badge" id="coop-partner-prog">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game State: Results -->
+                <div id="game-results" class="game-state">
+                    <div class="results-container">
+                        <!-- Versus Match Outcome Banner -->
+                        <div class="versus-outcome" id="versus-outcome" hidden>
+                            <span class="versus-outcome-badge" id="versus-outcome-badge">🏆 KAMU MENANG!</span>
+                            <p class="versus-outcome-subtitle" id="versus-outcome-subtitle">Kamu unggul dalam duel 1 vs 1 ini.</p>
+                        </div>
+
+                        <span class="results-emoji" id="results-emoji" aria-hidden="true">🎉</span>
+                        <h3 class="results-title" id="results-title" tabindex="-1">Hasil Kamu!</h3>
+                        <p class="results-player" id="results-player-name"></p>
+
+                        <!-- Versus Head-to-Head Comparison Card -->
+                        <div class="versus-comparison" id="versus-comparison" hidden>
+                            <div class="vs-duel-card vs-card-you" id="vs-card-you">
+                                <span class="vs-tag">Kamu</span>
+                                <strong class="vs-name" id="vs-you-name">Kamu</strong>
+                                <small class="vs-class" id="vs-you-class">-</small>
+                                <div class="vs-score-val"><span id="vs-you-wpm">0</span> <small>WPM</small></div>
+                                <div class="vs-score-sub"><span id="vs-you-acc">0</span>% Akurasi · Skor <strong id="vs-you-score">0</strong></div>
+                            </div>
+                            <div class="vs-duel-vs">
+                                <span>VS</span>
+                            </div>
+                            <div class="vs-duel-card vs-card-partner" id="vs-card-partner">
+                                <span class="vs-tag">Lawan</span>
+                                <strong class="vs-name" id="vs-partner-name">Lawan</strong>
+                                <small class="vs-class" id="vs-partner-class">-</small>
+                                <div class="vs-score-val"><span id="vs-partner-wpm">0</span> <small>WPM</small></div>
+                                <div class="vs-score-sub"><span id="vs-partner-acc">0</span>% Akurasi · Skor <strong id="vs-partner-score">0</strong></div>
+                            </div>
+                        </div>
+
+                        <div class="results-main" id="results-main">
+                            <div class="result-big wpm">
+                                <span class="result-value" id="result-wpm">0</span>
+                                <span class="result-unit">WPM</span>
+                                <small class="result-caption">Kecepatan</small>
+                            </div>
+                            <div class="result-big accuracy" id="result-accuracy-card">
+                                <span class="result-value" id="result-accuracy">0</span>
+                                <span class="result-unit">%</span>
+                                <small class="result-caption">Akurasi</small>
+                            </div>
+                        </div>
+
+                        <div class="results-details">
+                            <div class="result-detail">
+                                <span class="result-detail-icon" aria-hidden="true">✅</span>
+                                <span class="result-detail-value" id="result-correct">0</span>
+                                <span class="result-detail-label">Benar</span>
+                            </div>
+                            <div class="result-detail">
+                                <span class="result-detail-icon" aria-hidden="true">❌</span>
+                                <span class="result-detail-value" id="result-wrong">0</span>
+                                <span class="result-detail-label">Salah</span>
+                            </div>
+                            <div class="result-detail">
+                                <span class="result-detail-icon" aria-hidden="true">⏱️</span>
+                                <span class="result-detail-value"><span id="result-time">30</span><span class="result-detail-s">s</span></span>
+                                <span class="result-detail-label">Durasi</span>
+                            </div>
+                        </div>
+
+                        <div class="result-message" id="result-message" aria-live="polite"></div>
+
+                        <p class="results-team-detail" id="results-team-detail" hidden></p>
+
+                        <div class="results-buttons">
+                            <button class="btn btn-primary btn-lg" id="btn-play-again" type="button">🔄 Main Lagi</button>
+                            <button class="btn btn-outline" id="btn-to-leaderboard" type="button">🏆 Leaderboard</button>
+                            <button class="btn btn-ghost" id="btn-back-home" type="button">← Ganti Mode</button>
+                        </div>
+
+                        <p class="results-saved">Skor tersimpan di leaderboard booth ini.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ LEADERBOARD ============ -->
+        <section id="leaderboard" class="section section-soft">
+            <div class="container">
+                <div class="section-head reveal">
+                    <span class="section-eyebrow">Papan Skor</span>
+                    <h2 class="section-title">🏆 Leaderboard</h2>
+                    <p class="section-subtitle">Top scores Booth Kestari EXPECTIK HIMATIK. Bisa kamu pecahkan?</p>
+                </div>
+
+                <div class="leaderboard-filters">
+                    <div class="filter-group" id="period-filter" role="group" aria-label="Filter waktu">
+                        <button class="filter-btn active" data-period="all" type="button">All-Time</button>
+                        <button class="filter-btn" data-period="today" type="button">Today</button>
+                    </div>
+                    <div class="filter-group" id="mode-filter" role="group" aria-label="Filter mode">
+                        <button class="filter-btn active" data-mode="solo" type="button">Solo</button>
+                        <button class="filter-btn" data-mode="versus" type="button">1 vs 1</button>
+                    </div>
+                </div>
+
+                <div class="leaderboard-table" id="leaderboard-table">
+                    <div class="leaderboard-header">
+                        <span class="lb-rank">#</span>
+                        <span class="lb-name">Nama &amp; Kelas</span>
+                        <span class="lb-wpm">WPM</span>
+                        <span class="lb-accuracy">Akurasi</span>
+                        <span class="lb-score">Skor</span>
+                    </div>
+                    <div class="leaderboard-body" id="leaderboard-body"></div>
+                </div>
+
+                <div class="leaderboard-empty" id="leaderboard-empty" hidden>
+                    <span class="empty-icon" aria-hidden="true">🏆</span>
+                    <p>Belum ada skor. Jadi yang pertama!</p>
+                    <a href="#game" class="btn btn-primary">Main Sekarang →</a>
+                </div>
+
+                <p class="leaderboard-note">💡 Skor tersimpan di perangkat booth ini.</p>
+            </div>
+        </section>
+
+        <!-- ============ CLOSING ============ -->
+        <section id="closing" class="section">
+            <div class="container closing-content">
+                <span class="closing-eyebrow reveal">Booth Kestari EXPECTIK HIMATIK</span>
+                <h2 class="section-title reveal">Now You Know What Kestari Does!</h2>
+                <blockquote class="closing-quote reveal">
+                    “Di balik kegiatan organisasi yang berjalan dengan baik,
+                    ada proses administrasi yang perlu dijaga.
+                    Itulah salah satu peran Kestari.”
+                </blockquote>
+                <p class="closing-cta-text reveal">
+                    Punya ketelitian, suka keteraturan, dan tertarik
+                    berkontribusi di balik layar?
+                </p>
+                <div class="closing-buttons reveal">
+                    <a href="#about" class="btn btn-primary btn-lg">Kenalan Lebih Dekat <span aria-hidden="true">→</span></a>
+                    <a href="#game" class="btn btn-outline btn-lg">🎮 Coba Game Lagi</a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer id="footer">
+        <div class="container footer-inner">
+            <div class="footer-brand">
+                <img src="assets/images/logo-himatik.webp" alt="HIMATIK" class="footer-logo" width="26" height="26">
+                <img src="assets/images/logo-kestari.webp" alt="Kestari" class="footer-logo" width="26" height="26">
+                <span>Biro Kesekretariatan HIMATIK</span>
+            </div>
+            <p class="footer-text">© 2026 Biro Kesekretariatan HIMATIK</p>
+        </div>
+    </footer>
+
+    <!-- Toast Container -->
+    <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/typing-game.js"></script>
+</body>
+</html>
