@@ -2124,8 +2124,31 @@ p {
     white-space: nowrap;
 }
 
+.lb-sub-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    min-width: 0;
+    line-height: 1.25;
+}
+
+.lb-time {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.70rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.lb-sub-sep {
+    color: var(--border-strong, #CBD5E1);
+    font-size: 0.70rem;
+    font-weight: 700;
+}
+
 .lb-vs-match-info {
-    margin-top: 2px;
     color: var(--text-muted);
     font-size: 0.72rem;
     overflow: hidden;

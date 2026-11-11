@@ -275,6 +275,23 @@
         return Number(value || 0).toLocaleString('id-ID');
     }
 
+    function formatScoreTime(dateValue) {
+        if (!dateValue) return '';
+        try {
+            const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleTimeString('id-ID', {
+                timeZone: 'Asia/Jakarta',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).replace(':', '.') + ' WIB';
+        } catch (e) {
+            const d = new Date(dateValue);
+            return String(d.getHours()).padStart(2, '0') + '.' + String(d.getMinutes()).padStart(2, '0') + ' WIB';
+        }
+    }
+
     function getRandomText(duration = selectedDuration) {
         let index = 0;
         if (CHALLENGE_TEXTS.length > 1) {
@@ -2111,6 +2128,18 @@
                 const pClass = entry.partnerClass && entry.partnerClass !== '-' ? ` (${entry.partnerClass})` : '';
                 matchInfo.textContent = `vs ${entry.partnerName}${pClass}`;
                 stack.appendChild(matchInfo);
+            }
+
+            // Tampilkan jam selesai (WIB) di bawah info pemain
+            const timeStr = formatScoreTime(entry.createdAt);
+            if (timeStr) {
+                const subRow = document.createElement('div');
+                subRow.className = 'lb-sub-row';
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'lb-time';
+                timeSpan.textContent = timeStr;
+                subRow.appendChild(timeSpan);
+                stack.appendChild(subRow);
             }
 
             nameElement.appendChild(stack);
