@@ -441,6 +441,28 @@
                             <span class="input-counter"><span id="class-counter">0</span>/30</span>
                         </div>
 
+                        <!-- Duration Selector -->
+                        <div class="duration-select-group" id="duration-select-group">
+                            <span class="duration-select-label">Pilih Durasi Waktu:</span>
+                            <div class="duration-options" role="radiogroup" aria-label="Pilih durasi waktu">
+                                <button type="button" class="duration-opt-btn active" data-duration="30" role="radio" aria-checked="true">
+                                    <span class="duration-opt-icon">⚡</span>
+                                    <span class="duration-opt-info">
+                                        <strong>30 Detik</strong>
+                                        <small>Cepat &amp; Intens</small>
+                                    </span>
+                                </button>
+                                <button type="button" class="duration-opt-btn" data-duration="60" role="radio" aria-checked="false">
+                                    <span class="duration-opt-icon">⏱️</span>
+                                    <span class="duration-opt-info">
+                                        <strong>1 Menit</strong>
+                                        <small>Tantangan Penuh</small>
+                                    </span>
+                                </button>
+                            </div>
+                            <p class="duration-guest-hint" id="duration-guest-hint" hidden>💡 Durasi ditentukan oleh Host room saat 1 vs 1.</p>
+                        </div>
+
                         <div class="room-join" id="room-join-group" hidden>
                             <label for="room-code-input">Punya kode room? <span>(opsional)</span></label>
                             <div class="input-group input-group-compact">
@@ -470,6 +492,15 @@
                             <span class="room-code-label">Room Code</span>
                             <strong class="room-code-value" id="lobby-room-code">----</strong>
                             <button class="btn btn-outline btn-sm" id="btn-copy-code" type="button">Salin</button>
+                        </div>
+
+                        <div class="lobby-duration-bar" id="lobby-duration-bar">
+                            <span class="lobby-duration-label">⏱️ Durasi Duel:</span>
+                            <div class="lobby-duration-toggle" id="lobby-duration-toggle">
+                                <button type="button" class="lobby-dur-btn active" data-duration="30">30 Detik</button>
+                                <button type="button" class="lobby-dur-btn" data-duration="60">1 Menit</button>
+                            </div>
+                            <span class="lobby-duration-guest-text" id="lobby-duration-guest-text" hidden>30 Detik</span>
                         </div>
 
                         <ul class="lobby-players">
@@ -531,6 +562,10 @@
                         </div>
 
                         <span class="sr-only" id="game-announcer" aria-live="polite" aria-atomic="true"></span>
+
+                        <div class="no-backspace-hint" id="no-backspace-hint" aria-live="polite">
+                            <span>🚫 Salah ketik tidak bisa dihapus — lanjut terus sampai selesai!</span>
+                        </div>
 
                         <div class="text-display-wrapper" id="text-display-wrapper">
                             <div class="text-display" id="text-display" aria-label="Teks yang harus diketik"></div>
@@ -676,6 +711,11 @@
                     <div class="filter-group" id="mode-filter" role="group" aria-label="Filter mode">
                         <button class="filter-btn active" data-mode="solo" type="button">Solo</button>
                         <button class="filter-btn" data-mode="versus" type="button">1 vs 1</button>
+                    </div>
+                    <div class="filter-group" id="duration-filter" role="group" aria-label="Filter durasi">
+                        <button class="filter-btn active" data-duration="all" type="button">Semua Durasi</button>
+                        <button class="filter-btn" data-duration="30" type="button">30s</button>
+                        <button class="filter-btn" data-duration="60" type="button">1 Menit</button>
                     </div>
                 </div>
 

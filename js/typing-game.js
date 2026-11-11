@@ -27,7 +27,8 @@
     /* ----------------------------------------------------------------------
        2. Constants & Firebase RTDB Setup
        ---------------------------------------------------------------------- */
-    const GAME_DURATION = 30; // seconds
+    const DEFAULT_DURATION = 30; // seconds
+    let selectedDuration = 30; // 30 | 60
     const STORAGE_KEY = 'kestari_leaderboard_scores_v2';
     const LEGACY_STORAGE_KEY = 'kestari_leaderboard_scores';
     const MAX_SCORES = 20;
@@ -170,6 +171,15 @@
     const leaderboardEmpty = document.getElementById('leaderboard-empty');
     const periodFilterBtns = Array.from(document.querySelectorAll('#period-filter .filter-btn'));
     const modeFilterBtns = Array.from(document.querySelectorAll('#mode-filter .filter-btn'));
+    const durationFilterBtns = Array.from(document.querySelectorAll('#duration-filter .filter-btn'));
+
+    const durationOptBtns = Array.from(document.querySelectorAll('.duration-opt-btn'));
+    const durationGuestHint = document.getElementById('duration-guest-hint');
+    const lobbyDurationBar = document.getElementById('lobby-duration-bar');
+    const lobbyDurationToggle = document.getElementById('lobby-duration-toggle');
+    const lobbyDurBtns = Array.from(document.querySelectorAll('.lobby-dur-btn'));
+    const lobbyDurationGuestText = document.getElementById('lobby-duration-guest-text');
+    const noBackspaceHint = document.getElementById('no-backspace-hint');
 
     /* ----------------------------------------------------------------------
        4. State
@@ -192,10 +202,13 @@
 
     let isGameRunning = false;
     let startedAt = 0;
-    let timeLeft = GAME_DURATION;
+    let timeLeft = selectedDuration;
     let tickInterval = null;
     let countdownInterval = null;
     let botInterval = null;
+
+    let lastTypedValue = '';
+    let noBackspaceTimer = null;
 
     let botPosition = 0;
     let botWpm = 0;
@@ -211,6 +224,7 @@
 
     let currentPeriodFilter = 'all';
     let currentModeFilter = 'solo';
+    let currentDurationFilter = 'all'; // all | 30 | 60
 
     /* ----------------------------------------------------------------------
        5. Helpers
@@ -261,7 +275,7 @@
         return Number(value || 0).toLocaleString('id-ID');
     }
 
-    function getRandomText() {
+    function getRandomText(duration = selectedDuration) {
         let index = 0;
         if (CHALLENGE_TEXTS.length > 1) {
             do {
@@ -269,7 +283,12 @@
             } while (index === lastTextIndex);
         }
         lastTextIndex = index;
-        return CHALLENGE_TEXTS[index];
+        let text = CHALLENGE_TEXTS[index];
+        if (duration >= 60 && text.length < 520) {
+            const nextIndex = (index + 1) % CHALLENGE_TEXTS.length;
+            text = text + ' ' + CHALLENGE_TEXTS[nextIndex];
+        }
+        return text;
     }
 
     function generateRoomCode() {
@@ -320,10 +339,11 @@
         partnerPosition = 0;
         partnerLive = { wpm: 0, accuracy: 0, correct: 0, wrong: 0 };
         botPosition = 0;
-        timeLeft = GAME_DURATION;
+        timeLeft = selectedDuration;
         lastBroadcastAt = 0;
         announcedSeconds = [];
         announcedProgress = [];
+        lastTypedValue = '';
     }
 
     function closeRoom(notify = true) {
@@ -400,6 +420,13 @@
         }
         if (roomCodeInput) roomCodeInput.value = '';
 
+        if (durationGuestHint) durationGuestHint.hidden = true;
+        durationOptBtns.forEach(btn => {
+            btn.style.opacity = '1';
+            btn.style.pointerEvents = 'auto';
+        });
+        updateDurationUI();
+
         checkFormValidity();
         switchState('nameInput');
         window.setTimeout(() => {
@@ -465,6 +492,13 @@
                 .toUpperCase()
                 .replace(/[^A-Z0-9]/g, '')
                 .slice(0, ROOM_CODE_LENGTH);
+
+            const isGuestCode = roomCodeInput.value.trim().length > 0;
+            if (durationGuestHint) durationGuestHint.hidden = !isGuestCode;
+            durationOptBtns.forEach(btn => {
+                btn.style.opacity = isGuestCode ? '0.45' : '1';
+                btn.style.pointerEvents = isGuestCode ? 'none' : 'auto';
+            });
         });
 
         roomCodeInput.addEventListener('keydown', (event) => {
@@ -474,6 +508,30 @@
             }
         });
     }
+
+    function updateDurationUI() {
+        durationOptBtns.forEach(btn => {
+            const isActive = Number(btn.dataset.duration) === selectedDuration;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-checked', String(isActive));
+        });
+        lobbyDurBtns.forEach(btn => {
+            btn.classList.toggle('active', Number(btn.dataset.duration) === selectedDuration);
+        });
+        if (lobbyDurationGuestText) {
+            lobbyDurationGuestText.textContent = selectedDuration === 60 ? '1 Menit' : '30 Detik';
+        }
+        if (timerValue) {
+            timerValue.textContent = String(selectedDuration);
+        }
+    }
+
+    durationOptBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            selectedDuration = Number(btn.dataset.duration) || 30;
+            updateDurationUI();
+        });
+    });
 
     if (btnStartGame) {
         btnStartGame.addEventListener('click', () => {
@@ -526,10 +584,11 @@
             try {
                 const roomRef = rtdb.ref('rooms/' + roomCode);
                 currentFirebaseRoomRef = roomRef;
-                currentText = getRandomText();
+                currentText = getRandomText(selectedDuration);
                 roomRef.set({
                     status: 'waiting',
                     text: currentText,
+                    duration: selectedDuration,
                     host: {
                         name: currentPlayerName,
                         class: currentPlayerClass,
@@ -606,6 +665,9 @@
 
                     if (data.text) {
                         currentText = data.text;
+                    }
+                    if (data.duration) {
+                        selectedDuration = Number(data.duration) || 30;
                     }
 
                     roomRef.child('guest').set({
@@ -693,9 +755,16 @@
             }
         }
 
+        // Sync duration from room
+        if (data.duration && Number(data.duration) !== selectedDuration) {
+            selectedDuration = Number(data.duration) || 30;
+            updateDurationUI();
+        }
+
         // Countdown start triggered by Host
         if (data.status === 'starting' && data.roundId && data.roundId !== currentRoundId) {
             currentRoundId = data.roundId;
+            if (data.duration) selectedDuration = Number(data.duration) || 30;
             if (data.text) currentText = data.text;
             startCoopRound(currentText, gameRole);
         }
@@ -798,11 +867,20 @@
             return;
         }
 
+        if (data.type === 'duration') {
+            if (data.duration) {
+                selectedDuration = Number(data.duration) || 30;
+                updateDurationUI();
+            }
+            return;
+        }
+
         if (data.type === 'start') {
             if (joinTimeout) {
                 clearTimeout(joinTimeout);
                 joinTimeout = null;
             }
+            if (data.duration) selectedDuration = Number(data.duration) || 30;
             partnerConnected = true;
             partnerName = cleanName(data.hostName) || partnerName || 'Host';
             partnerType = 'remote';
@@ -840,7 +918,7 @@
             correct: Math.max(0, Math.round(Number(stats.correct) || 0)),
             wrong: Math.max(0, Math.round(Number(stats.wrong) || 0)),
             typedLength: Math.max(0, Math.round(Number(stats.typedLength) || 0)),
-            duration: Math.max(1, Math.round(Number(stats.duration) || GAME_DURATION))
+            duration: Math.max(1, Math.round(Number(stats.duration) || selectedDuration))
         };
     }
 
@@ -881,6 +959,13 @@
             }
         }
 
+        if (lobbyDurationToggle && lobbyDurationGuestText) {
+            lobbyDurationToggle.hidden = isGuest;
+            lobbyDurationGuestText.hidden = !isGuest;
+            lobbyDurationGuestText.textContent = selectedDuration === 60 ? '1 Menit' : '30 Detik';
+        }
+        updateDurationUI();
+
         if (btnStartCoop) {
             btnStartCoop.disabled = isGuest || !partnerConnected || partnerType !== 'remote';
             btnStartCoop.hidden = isGuest;
@@ -888,6 +973,24 @@
         if (btnPlayBot) btnPlayBot.hidden = isGuest;
         if (lobbyCard) lobbyCard.classList.toggle('is-guest', isGuest);
     }
+
+    lobbyDurBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (gameRole !== 'host') return;
+            selectedDuration = Number(btn.dataset.duration) || 30;
+            updateDurationUI();
+            if (currentFirebaseRoomRef) {
+                try {
+                    currentFirebaseRoomRef.update({ duration: selectedDuration });
+                } catch (e) {}
+            }
+            if (roomChannel) {
+                try {
+                    roomChannel.postMessage({ type: 'duration', duration: selectedDuration });
+                } catch (e) {}
+            }
+        });
+    });
 
     function copyRoomCode() {
         if (!roomCode) return;
@@ -940,7 +1043,7 @@
             partnerName = 'Bot Kestari';
             partnerType = 'bot';
             partnerConnected = true;
-            startCoopRound(getRandomText(), 'bot');
+            startCoopRound(getRandomText(selectedDuration), 'bot');
             toast('Bot Kestari siap jadi partner!', 'success');
         });
     }
@@ -948,7 +1051,7 @@
     if (btnStartCoop) {
         btnStartCoop.addEventListener('click', () => {
             if (gameRole !== 'host' || !partnerConnected || partnerType !== 'remote') return;
-            const text = getRandomText();
+            const text = getRandomText(selectedDuration);
             const roundId = Date.now();
             currentRoundId = roundId;
             if (currentFirebaseRoomRef) {
@@ -957,6 +1060,7 @@
                         status: 'starting',
                         roundId,
                         text,
+                        duration: selectedDuration,
                         progress: null,
                         finish: null
                     });
@@ -971,7 +1075,7 @@
                         roundId,
                         text,
                         hostName: currentPlayerName,
-                        duration: GAME_DURATION
+                        duration: selectedDuration
                     });
                 } catch (error) {
                     // Ignore.
@@ -998,7 +1102,7 @@
         partnerType = 'none';
         partnerName = '';
         resetRoundState();
-        startCountdown(() => beginPlaying(getRandomText()), 'Bersiap...');
+        startCountdown(() => beginPlaying(getRandomText(selectedDuration)), 'Bersiap...');
     }
 
     function startCountdown(onComplete, label) {
@@ -1037,10 +1141,11 @@
 
     function beginPlaying(text) {
         resetRoundState();
-        currentText = text || getRandomText();
+        currentText = text || getRandomText(selectedDuration);
         isGameRunning = true;
-        timeLeft = GAME_DURATION;
+        timeLeft = selectedDuration;
         startedAt = Date.now();
+        lastTypedValue = '';
 
         partnerPosition = 0;
         partnerLive = { wpm: 0, accuracy: 0, correct: 0, wrong: 0 };
@@ -1052,7 +1157,7 @@
         }
 
         const isVersus = currentMode === 'versus' || currentMode === 'coop';
-        if (timerValue) timerValue.textContent = String(GAME_DURATION);
+        if (timerValue) timerValue.textContent = String(selectedDuration);
         if (gameTimer) gameTimer.classList.remove('warning');
         if (liveWpm) liveWpm.textContent = '0';
         if (liveAccuracy) liveAccuracy.textContent = '100';
@@ -1081,6 +1186,7 @@
         if (typingInput) {
             typingInput.value = '';
             typingInput.disabled = false;
+            typingInput.maxLength = currentText.length;
         }
         if (textDisplayWrapper) textDisplayWrapper.classList.remove('unfocused');
 
@@ -1103,7 +1209,7 @@
         if (!isGameRunning) return;
 
         const elapsed = (Date.now() - startedAt) / 1000;
-        const remaining = Math.max(0, GAME_DURATION - elapsed);
+        const remaining = Math.max(0, selectedDuration - elapsed);
         timeLeft = remaining;
 
         if (timerValue) timerValue.textContent = String(Math.ceil(remaining));
@@ -1162,7 +1268,7 @@
         }
 
         const duration = Math.min(
-            GAME_DURATION,
+            selectedDuration,
             Math.max(1, Math.round((Date.now() - startedAt) / 1000))
         );
         const wpm = Math.round((correct / 5) / (duration / 60));
@@ -1333,24 +1439,98 @@
     }
 
     /* ----------------------------------------------------------------------
-       11. Typing input
+       11. Typing input (No Backspace / Delete allowed - continue to the end!)
        ---------------------------------------------------------------------- */
+    function showNoBackspaceNotice() {
+        if (!noBackspaceHint) return;
+        noBackspaceHint.classList.add('shake');
+        clearTimeout(noBackspaceTimer);
+        noBackspaceTimer = setTimeout(() => {
+            if (noBackspaceHint) noBackspaceHint.classList.remove('shake');
+        }, 450);
+    }
+
     if (typingInput) {
+        typingInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                return;
+            }
+
+            // Disallow Backspace & Delete
+            if (event.key === 'Backspace' || event.key === 'Delete') {
+                event.preventDefault();
+                showNoBackspaceNotice();
+                return;
+            }
+
+            // Disallow undo (Ctrl+Z), cut (Ctrl+X), select all (Ctrl+A)
+            if ((event.ctrlKey || event.metaKey) && ['z', 'Z', 'x', 'X', 'a', 'A'].includes(event.key)) {
+                event.preventDefault();
+                return;
+            }
+
+            // Disallow moving cursor backwards with arrow keys / home / page up
+            if (['ArrowLeft', 'ArrowUp', 'Home', 'PageUp'].includes(event.key)) {
+                event.preventDefault();
+                return;
+            }
+        });
+
+        typingInput.addEventListener('beforeinput', (event) => {
+            if (event.inputType && (
+                event.inputType.startsWith('delete') ||
+                event.inputType === 'historyUndo' ||
+                event.inputType === 'historyRedo'
+            )) {
+                event.preventDefault();
+                showNoBackspaceNotice();
+                return;
+            }
+        });
+
+        typingInput.addEventListener('paste', (event) => {
+            event.preventDefault();
+        });
+
+        // Keep cursor strictly at the end on any mouse click, selection or touch
+        ['click', 'select', 'mouseup', 'keyup', 'touchend'].forEach((evt) => {
+            typingInput.addEventListener(evt, () => {
+                if (!isGameRunning) return;
+                const len = typingInput.value.length;
+                if (typingInput.selectionStart !== len || typingInput.selectionEnd !== len) {
+                    typingInput.setSelectionRange(len, len);
+                }
+            });
+        });
+
         typingInput.addEventListener('input', () => {
             if (!isGameRunning) return;
+
+            // Guard: never allow typed text to decrease in length
+            if (typingInput.value.length < lastTypedValue.length) {
+                typingInput.value = lastTypedValue;
+                typingInput.setSelectionRange(lastTypedValue.length, lastTypedValue.length);
+                showNoBackspaceNotice();
+                return;
+            }
+
+            // Clamp to currentText max length
+            if (typingInput.value.length > currentText.length) {
+                typingInput.value = typingInput.value.slice(0, currentText.length);
+            }
+
+            lastTypedValue = typingInput.value;
 
             const stats = getOwnStats();
             renderTextDisplay(stats.typed);
             updateGameUI(stats);
             broadcastProgress(stats);
 
-            if (stats.typedLength >= currentText.length && stats.correct === currentText.length) {
+            // Finish when player reaches the end of the text (even with mistakes, as requested)
+            if (stats.typedLength >= currentText.length) {
                 finishGame();
             }
-        });
-
-        typingInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') event.preventDefault();
         });
 
         typingInput.addEventListener('blur', () => {
@@ -1687,7 +1867,7 @@
             }
 
             if (partnerType === 'bot') {
-                startCoopRound(getRandomText(), 'bot');
+                startCoopRound(getRandomText(selectedDuration), 'bot');
                 return;
             }
 
@@ -1776,7 +1956,7 @@
             partnerScore: Math.max(0, Math.round(Number(item.partnerScore) || 0)),
             charsCorrect: Math.max(0, Math.round(Number(item.charsCorrect ?? item.chars_correct) || 0)),
             charsWrong: Math.max(0, Math.round(Number(item.charsWrong ?? item.chars_wrong) || 0)),
-            duration: Math.max(1, Math.round(Number(item.duration) || GAME_DURATION)),
+            duration: Math.max(1, Math.round(Number(item.duration) || DEFAULT_DURATION)),
             createdAt: item.createdAt || item.created_at || new Date().toISOString()
         };
     }
@@ -1834,7 +2014,7 @@
     /* ----------------------------------------------------------------------
        15. Leaderboard rendering
        ---------------------------------------------------------------------- */
-    function renderLeaderboard(period = 'all', mode = 'solo') {
+    function renderLeaderboard(period = currentPeriodFilter, mode = currentModeFilter, duration = currentDurationFilter) {
         if (!leaderboardBody) return;
 
         const targetMode = mode === 'coop' ? 'versus' : mode;
@@ -1846,6 +2026,12 @@
         if (period === 'today') {
             const today = localDateKey(new Date());
             scores = scores.filter((entry) => localDateKey(entry.createdAt) === today);
+        }
+
+        if (duration === '30') {
+            scores = scores.filter((entry) => (entry.duration || 30) <= 35);
+        } else if (duration === '60') {
+            scores = scores.filter((entry) => (entry.duration || 30) > 35);
         }
 
         scores.sort(sortScores);
@@ -1905,6 +2091,11 @@
                 playerRow.appendChild(classPill);
             }
 
+            const durTag = document.createElement('span');
+            durTag.className = 'lb-duration-tag';
+            durTag.textContent = (entry.duration || 30) > 35 ? '1m' : '30s';
+            playerRow.appendChild(durTag);
+
             if (targetMode === 'versus') {
                 const vsBadge = document.createElement('span');
                 vsBadge.className = `lb-mode lb-vs-badge ${entry.outcome || 'duel'}`;
@@ -1956,7 +2147,7 @@
             button.classList.add('active');
             button.setAttribute('aria-pressed', 'true');
             currentPeriodFilter = button.dataset.period || 'all';
-            renderLeaderboard(currentPeriodFilter, currentModeFilter);
+            renderLeaderboard(currentPeriodFilter, currentModeFilter, currentDurationFilter);
         });
     });
 
@@ -1971,7 +2162,21 @@
             button.classList.add('active');
             button.setAttribute('aria-pressed', 'true');
             currentModeFilter = button.dataset.mode || 'solo';
-            renderLeaderboard(currentPeriodFilter, currentModeFilter);
+            renderLeaderboard(currentPeriodFilter, currentModeFilter, currentDurationFilter);
+        });
+    });
+
+    durationFilterBtns.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.classList.contains('active')));
+        button.addEventListener('click', () => {
+            durationFilterBtns.forEach((item) => {
+                item.classList.remove('active');
+                item.setAttribute('aria-pressed', 'false');
+            });
+            button.classList.add('active');
+            button.setAttribute('aria-pressed', 'true');
+            currentDurationFilter = button.dataset.duration || 'all';
+            renderLeaderboard(currentPeriodFilter, currentModeFilter, currentDurationFilter);
         });
     });
 
@@ -2055,7 +2260,7 @@
         }
     }
 
-    renderLeaderboard('all', 'solo');
+    renderLeaderboard('all', 'solo', 'all');
 
     document.addEventListener('DOMContentLoaded', () => {
         renderLeaderboard(currentPeriodFilter, currentModeFilter);
