@@ -74,8 +74,9 @@
             if (!target) return;
 
             event.preventDefault();
-            const navHeight = navbar ? navbar.offsetHeight : 64;
-            const top = target.getBoundingClientRect().top + window.pageYOffset - navHeight - 4;
+            // Hitung offset dari posisi navbar saat ini (mendukung navbar floating).
+            const navOffset = navbar ? navbar.getBoundingClientRect().bottom + 8 : 68;
+            const top = target.getBoundingClientRect().top + window.pageYOffset - navOffset;
 
             window.scrollTo({ top, behavior: 'smooth' });
 
